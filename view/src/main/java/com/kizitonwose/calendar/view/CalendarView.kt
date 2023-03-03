@@ -315,6 +315,27 @@ open class CalendarView : RecyclerView {
         calendarAdapter.reloadDay(day)
     }
 
+    // This could replace the other `notifyDateChanged` with one DayPosition param if we add
+    // the `JvmOverloads` annotation but that would break compatibility in places where the
+    // method is called with named args: notifyDateChanged(date = *, position = DayPosition.*)
+    // because assigning single elements to varargs in named form is not allowed.
+    // May consider removing the other one at some point.
+    /**
+     * Notify the CalendarView to reload the cells for this [LocalDate] in the
+     * specified day positions. This causes [MonthDayBinder.bind] to be called
+     * with the [ViewContainer] at the relevant [DayPosition] values.
+     */
+    fun notifyDateChanged(
+        date: LocalDate,
+        vararg position: DayPosition,
+    ) {
+        val days = position
+            .ifEmpty { arrayOf(DayPosition.MonthDate) }
+            .map { CalendarDay(date, it) }
+            .toSet()
+        calendarAdapter.reloadDay(*days.toTypedArray())
+    }
+
     /**
      * Shortcut for [notifyDayChanged] with a [LocalDate] instance.
      */

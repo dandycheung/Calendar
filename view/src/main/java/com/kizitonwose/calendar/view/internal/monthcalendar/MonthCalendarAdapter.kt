@@ -25,7 +25,6 @@ import com.kizitonwose.calendar.view.internal.NO_INDEX
 import com.kizitonwose.calendar.view.internal.dayTag
 import com.kizitonwose.calendar.view.internal.setupItemRoot
 import java.time.DayOfWeek
-import java.time.LocalDate
 import java.time.YearMonth
 
 internal class MonthCalendarAdapter(
@@ -96,10 +95,17 @@ internal class MonthCalendarAdapter(
         holder.bindMonth(getItem(position))
     }
 
-    fun reloadDay(day: CalendarDay) {
-        val position = getAdapterPosition(day)
-        if (position != NO_INDEX) {
-            notifyItemChanged(position, day)
+    fun reloadDay(vararg day: CalendarDay) {
+        if (day.size == 1) {
+            val day = day.first()
+            val position = getAdapterPosition(day)
+            if (position != NO_INDEX) {
+                notifyItemChanged(position, day)
+            }
+        } else {
+            day.map { getAdapterPosition(it) to it }
+                .filter { it.first != NO_INDEX }
+                .forEach { notifyItemChanged(it.first, it.second) }
         }
     }
 
@@ -159,9 +165,9 @@ internal class MonthCalendarAdapter(
         return getMonthIndex(startMonth, month)
     }
 
-    internal fun getAdapterPosition(date: LocalDate): Int {
-        return getAdapterPosition(CalendarDay(date, DayPosition.MonthDate))
-    }
+//    internal fun getAdapterPosition(date: LocalDate): Int {
+//        return getAdapterPosition(CalendarDay(date, DayPosition.MonthDate))
+//    }
 
     internal fun getAdapterPosition(day: CalendarDay): Int {
         return getAdapterPosition(day.positionYearMonth)
